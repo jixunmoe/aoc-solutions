@@ -1,4 +1,4 @@
-# Day 2: TBD
+# Day 2: Gift Shop
 
 [[^ up]](../../README.asciidoc) [[< prev]](../day-01/README.MD) [[next >]](../day-03/README.MD) [[solution ✨]](./solve.py)
 
