@@ -1,6 +1,6 @@
 # Day 25: Code Chronicle
 
-[[^ up]](../../README.asciidoc) [[< prev]](../day-24/README.MD) [next >] <!-- [[solution ✨]](./solve.py) -->
+[[^ up]](../../README.asciidoc) [[< prev]](../day-24/README.MD) [next >] [[solution ✨]](./solve.py)
 
 <!-- article begin -->
 

@@ -43,8 +43,37 @@ cargo run --release --bin solve -- input.txt
 |===
 ====
 
-.AoC 2024
+.AoC 2025
 [%collapsible%open]
+====
+[cols="2*^", options="header"]
+|===
+| W1 | W2
+
+| link:aoc-2025/day-01/README.MD[Day 1 ✨]
+| link:aoc-2025/day-08/README.MD[Day 8 🚧]
+
+| link:aoc-2025/day-02/README.MD[Day 2 ✨]
+| link:aoc-2025/day-09/README.MD[Day 9 🚧]
+
+| link:aoc-2025/day-03/README.MD[Day 3 ✨]
+| link:aoc-2025/day-10/README.MD[Day 10 🚧]
+
+| link:aoc-2025/day-04/README.MD[Day 4 🚧]
+| link:aoc-2025/day-11/README.MD[Day 11 🚧]
+
+| link:aoc-2025/day-05/README.MD[Day 5 🚧]
+| link:aoc-2025/day-12/README.MD[Day 12 🚧]
+
+| link:aoc-2025/day-06/README.MD[Day 6 🚧]
+.2+.^|🎄
+
+| link:aoc-2025/day-07/README.MD[Day 7 🚧]
+|===
+====
+
+.AoC 2024
+[%collapsible]
 ====
 [cols="4*^", options="header"]
 |===
