@@ -15,7 +15,7 @@ struct grid_t {
   int cols;
 };
 
-void parse_grid(struct grid_t *grid, FILE *stream) {
+void grid_from_stream(struct grid_t *grid, FILE *stream) {
   char buffer[LINE_BUFFER_SIZE] = {};
   memset(grid, 0, sizeof(*grid));
 
@@ -39,7 +39,7 @@ void parse_grid(struct grid_t *grid, FILE *stream) {
   grid->cols = col;
 }
 
-void print_grid(const struct grid_t *grid) {
+void grid_print(const struct grid_t *grid) {
   for (int r = 0; r < grid->rows; r++) {
     for (int c = 0; c < grid->cols; c++) {
       fputc(grid->cells[r][c], stdout);
@@ -49,14 +49,14 @@ void print_grid(const struct grid_t *grid) {
   }
 }
 
-bool is_box_at(const struct grid_t *grid, int row, int col) {
+bool grid_is_box_at(const struct grid_t *grid, int row, int col) {
   if (row < 0 || row >= grid->rows || col < 0 || col >= grid->cols) {
     return false;
   }
   return grid->cells[row][col] == CELL_BOX;
 }
 
-int count_surrounded_boxes(const struct grid_t *grid, int row, int col) {
+int grid_count_surrounded_boxes(const struct grid_t *grid, int row, int col) {
   int count = 0;
 
   // find the number of boxes around the cord.
@@ -68,7 +68,7 @@ int count_surrounded_boxes(const struct grid_t *grid, int row, int col) {
   for (int i = 0; i < 8; i++) {
     int dr = directions[i][0];
     int dc = directions[i][1];
-    if (is_box_at(grid, row + dr, col + dc)) {
+    if (grid_is_box_at(grid, row + dr, col + dc)) {
       count++;
     }
   }
@@ -84,7 +84,7 @@ int solve(struct grid_t *next, const struct grid_t *grid) {
   for (int r = 0; r < grid->rows; r++) {
     for (int c = 0; c < grid->cols; c++) {
       if (grid->cells[r][c] == CELL_BOX) {
-        int surrounded_boxes = count_surrounded_boxes(grid, r, c);
+        int surrounded_boxes = grid_count_surrounded_boxes(grid, r, c);
 
         if (surrounded_boxes < 4) {
           next->cells[r][c] = CELL_EMPTY;
@@ -104,10 +104,11 @@ int solve(struct grid_t *next, const struct grid_t *grid) {
 int main() {
   struct grid_t grid = {};
   struct grid_t next_grid = {};
-  parse_grid(&grid, stdin);
-  int p1 = solve(&next_grid, &grid);
-  int p2 = p1;
+  grid_from_stream(&grid, stdin);
 
+  int p1 = solve(&next_grid, &grid);
+
+  int p2 = p1;
   while (true) {
     memcpy(&grid, &next_grid, sizeof(grid));
     int next_removed = solve(&next_grid, &grid);
