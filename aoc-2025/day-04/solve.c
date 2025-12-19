@@ -60,7 +60,7 @@ int grid_count_surrounded_boxes(const struct grid_t *grid, int row, int col) {
   int count = 0;
 
   // find the number of boxes around the cord.
-  const int directions[8][2] = {
+  static const int directions[8][2] = {
       {-1, -1}, {-1, 0}, {-1, 1}, //
       {0, -1},  {0, 1},           //
       {1, -1},  {1, 0},  {1, 1},  //
