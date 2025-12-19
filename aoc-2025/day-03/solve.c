@@ -1,67 +1,70 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
-int digit_len_and_clean(char *s) {
+typedef int8_t digit_t;
+int clean_string(digit_t *out, const char *in) {
   int len = 0;
-  char *p = s;
-  for (; isdigit(*p); p++) {
+  for (; isdigit(*in); in++) {
+    *out++ = *in - '0';
     len++;
   }
-  *p = 0;
+  *out = 0;
   return len;
 }
 
-struct indexed_value_t {
-  char value;
-  int16_t idx;
-};
-void indexed_value_reset(struct indexed_value_t *iv) {
-  iv->value = -1;
-  iv->idx = -1;
-}
-int indexed_value_get(const struct indexed_value_t *a,
-                      const struct indexed_value_t *b) {
-  return (int)(a->value - '0') * 10 + (int)(b->value - '0');
+int64_t solve_value(const digit_t *digits, size_t len, int digits_left,
+                    int64_t prev_result) {
+  if (digits_left == 0) {
+    return prev_result;
+  }
+
+  // reserve (digits_left - 1) digits from scanning.
+  int highest_idx = -1;
+  digit_t highest_value = -1;
+  for (int i = len - 1 - digits_left + 1; i >= 0; i--) {
+    if (digits[i] >= highest_value) {
+      highest_value = digits[i];
+      highest_idx = i;
+    }
+  }
+  //   printf("found: idx=%d value=%d\n", highest_idx, highest_value);
+
+  assert(highest_value >= 0);
+
+  return solve_value(&digits[highest_idx + 1], len - (highest_idx + 1),
+                     digits_left - 1, prev_result * 10 + highest_value);
 }
 
 int main() {
   char buffer[256] = {};
-  struct indexed_value_t highest = {};
-  struct indexed_value_t second_highest = {};
+  digit_t digits[256] = {};
 
-  int64_t sum = 0;
+  int64_t result_p1 = 0;
+  int64_t result_p2 = 0;
 
   while (fgets(buffer, sizeof(buffer) - 1, stdin)) {
-    indexed_value_reset(&highest);
-    indexed_value_reset(&second_highest);
-
-    int len = digit_len_and_clean(buffer);
-
-    // Find the highest digit from [0:-1]
-    for (char *p = &buffer[len - 2]; p >= buffer; p--) {
-      if (*p >= highest.value) {
-        second_highest = highest;
-        highest.idx = p - buffer;
-        highest.value = *p;
-      }
-    }
-
-    if (buffer[len - 1] >= second_highest.value) {
-      second_highest.idx = len - 1;
-      second_highest.value = buffer[len - 1];
-    }
-
-    int combined_value = indexed_value_get(&highest, &second_highest);
-    sum += combined_value;
+    size_t len = clean_string(digits, buffer);
+    int64_t p1 = solve_value(digits, len, 2, 0);
+    int64_t p2 = solve_value(digits, len, 12, 0);
+    // int64_t p2 = 0;
+    result_p1 += p1;
+    result_p2 += p2;
 
 #ifndef NDEBUG
-    printf("highest %s -> %d (idx=%d, %d)\n", buffer, combined_value,
-           highest.idx, second_highest.idx);
+    int buffer_len = strlen(buffer);
+    if (buffer[buffer_len - 1] == '\n') {
+      buffer[buffer_len - 1] = '\0';
+    }
+    printf("p1 %s -> %ld\n", buffer, p1);
+    printf("p2 %s -> %ld\n", buffer, p2);
 #endif
   }
 
-  printf("p1: sum=%ld\n", sum);
+  printf("p1: sum=%ld\n", result_p1);
+  printf("p2: sum=%ld\n", result_p2);
 
   return 0;
 }
