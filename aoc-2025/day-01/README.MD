@@ -1,4 +1,4 @@
-# Day 1: TBD
+# Day 1: Secret Entrance
 
 [[^ up]](../../README.asciidoc) [< prev] [[next >]](../day-02/README.MD) <!-- [[solution ✨]](./solve.py) -->
 
