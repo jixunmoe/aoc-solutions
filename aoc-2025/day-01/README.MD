@@ -4,6 +4,10 @@
 
 <!-- article begin -->
 
+Effectively build a simulator.
+
+For Q2 I had some calculation error with python simulation, so I ended up with some C code to do the turns manually, not impressive but it works.
+
 <!-- article end -->
 
 ---
