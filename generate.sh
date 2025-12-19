@@ -1,5 +1,6 @@
 #!/bin/bash
 
+year=$(date +%Y)
 toc=""
 for i in $(seq 25); do
   day="day-$(printf "%02d" $i)"
@@ -14,9 +15,9 @@ for i in $(seq 25); do
     next="[[next >]](../day-$(printf "%02d" $((i+1)))/README.MD)"
   fi
 
-  if [[ ! -f "aoc-2024/$day/README.MD" ]]; then
-    mkdir -p "aoc-2024/$day"
-    cat > "aoc-2024/$day/README.MD" <<EOF
+  if [[ ! -f "aoc-$year/$day/README.MD" ]]; then
+    mkdir -p "aoc-$year/$day"
+    cat > "aoc-$year/$day/README.MD" <<EOF
 # Day $i: TBD
 
 [[^ up]](../../README.asciidoc) $prev $next <!-- [[solution ✨]](./solve.py) -->
@@ -27,8 +28,8 @@ for i in $(seq 25); do
 
 ---
 
-* Puzzle: https://adventofcode.com/2024/day/$i
-* Input: https://adventofcode.com/2024/day/$i/input
+* Puzzle: https://adventofcode.com/$year/day/$i
+* Input: https://adventofcode.com/$year/day/$i/input
 
 EOF
   fi
