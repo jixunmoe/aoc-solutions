@@ -1,12 +1,16 @@
 # Day 1: Secret Entrance
 
-[[^ up]](../../README.asciidoc) [< prev] [[next >]](../day-02/README.MD) <!-- [[solution ✨]](./solve.py) -->
+[[^ up]](../../README.asciidoc) [< prev] [[next >]](../day-02/README.MD) [[solution p1 in py ✨]](./solve.py) [[solution p2 in c✨]](./solve_p2.c)
 
 <!-- article begin -->
 
+## Part 1
+
 Effectively build a simulator.
 
-For Q2 I had some calculation error with python simulation, so I ended up with some C code to do the turns manually, not impressive but it works.
+## Part 2
+
+Brute force simulator, avoid shortcuts via math due miss by one issues from place to places.
 
 <!-- article end -->
 
