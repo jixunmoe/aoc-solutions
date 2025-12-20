@@ -68,7 +68,7 @@ cargo run --release --bin solve -- input.txt
 | link:aoc-2025/day-06/README.MD[Day 6 ✨]
 .2+.^|🎄
 
-| link:aoc-2025/day-07/README.MD[Day 7 🚧]
+| link:aoc-2025/day-07/README.MD[Day 7 ✨]
 |===
 ====
 
