@@ -54,6 +54,9 @@ cargo run --release --bin solve -- input.txt
 .AoC 2025
 [%collapsible%open]
 ====
+
+Note: Copilot was used to speed up coding during the creation of AoC 2025 solutions. I did not give Copilot access to the problem descriptions nor using its agent mode to solve the problems automatically.
+
 [cols="2*^", options="header"]
 |===
 | W1 | W2
