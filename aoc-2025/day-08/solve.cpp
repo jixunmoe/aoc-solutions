@@ -5,11 +5,15 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <limits>
+#include <optional>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
-typedef std::vector<std::unordered_set<int>> clusters_t;
+typedef std::vector<std::unordered_set<size_t>> clusters_t;
+typedef std::unordered_map<int, std::unordered_set<int>> circuits_mapping_t;
 
 class Coordinate {
 public:
@@ -33,72 +37,161 @@ public:
   }
 };
 
-template <typename T> bool set_intersects(const T &a, const T &b) {
-  return std::any_of(a.cbegin(), a.cend(),
-                     [&b](const int &elem) { return b.contains(elem); });
-}
+class Circuits {
+public:
+  Circuits(const std::vector<Coordinate> &coords) { set_coords(coords); };
 
-void insert_to_clusters(clusters_t &clusters, int search_idx, int to_add) {
-  // now insert to a cluster, or create a new one
-  bool inserted = false;
-  for (auto &cluster : clusters) {
-    if (cluster.contains(search_idx) || cluster.contains(to_add)) {
-      cluster.insert(static_cast<int>(to_add));
-      cluster.insert(static_cast<int>(search_idx));
-      inserted = true;
+  void set_coords(const std::vector<Coordinate> &coords) {
+    coords_ = coords;
+    connections_.clear();
+
+    auto len = coords.size();
+    dist_matrix_.clear();
+    dist_matrix_.resize(len, std::vector<double>(len, 0.0));
+
+    for (size_t i = 0; i < len; ++i) {
+      connections_[i] = {};
+      dist_matrix_[i][i] = std::numeric_limits<double>::max();
+      for (size_t j = i + 1; j < len; ++j) {
+        double dist = coords[i].distance(coords[j]);
+        dist_matrix_[i][j] = dist;
+      }
     }
   }
 
-  if (!inserted) {
-    std::unordered_set<int> new_cluster;
-    new_cluster.insert(static_cast<int>(to_add));
-    new_cluster.insert(search_idx);
-    clusters.push_back(new_cluster);
-  }
-}
-
-clusters_t merge_clusters(const clusters_t &clusters) {
-  bool needs_merge_again = false;
-  clusters_t merged_clusters;
-  for (const auto &cluster : clusters) {
-    bool merged = false;
-    for (auto &m_cluster : merged_clusters) {
-      if (set_intersects(m_cluster, cluster)) {
-        m_cluster.insert(cluster.begin(), cluster.end());
-        merged = true;
-        needs_merge_again = true;
+  size_t connect_shortest_n_times(size_t n) {
+    size_t count = 0;
+    for (; count < n; count++) {
+      if (!connect_next_shortest()) {
         break;
       }
     }
-    if (!merged) {
-      merged_clusters.push_back(cluster);
+    return count;
+  }
+
+  std::optional<std::pair<int, int>> connect_next_shortest() {
+    // find shortest distance
+    double shortest_dist = std::numeric_limits<double>::max();
+    int idx1 = -1, idx2 = -1;
+    size_t len = dist_matrix_.size();
+
+    for (size_t i = 0; i < len; i++) {
+      for (size_t j = i + 1; j < len; j++) {
+        if (dist_matrix_[i][j] < shortest_dist) {
+          shortest_dist = dist_matrix_[i][j];
+          idx1 = static_cast<int>(i);
+          idx2 = static_cast<int>(j);
+        }
+      }
     }
+
+    if (idx1 == -1 || idx2 == -1) {
+      return std::nullopt;
+    }
+
+#ifndef NDEBUG
+    printf("connect: %d - %d\n", idx1, idx2);
+#endif
+
+    connections_[idx1].insert(idx2);
+    connections_[idx2].insert(idx1);
+    dist_matrix_[idx1][idx2] = std::numeric_limits<double>::max();
+    return std::make_optional(std::make_pair(idx1, idx2));
   }
 
-  if (needs_merge_again) {
-    return merge_clusters(merged_clusters);
-  } else {
-    return merged_clusters;
-  }
-}
+  clusters_t get_clusters() const {
+    clusters_t clusters;
+    std::unordered_set<size_t> visited;
 
-bool is_debug_enabled() {
-  if (auto env_var = std::getenv("DEBUG"); env_var) {
-    char v = *env_var;
-    return v == 'y' || v == 'Y' || v == '1';
+    for (const auto &pair : connections_) {
+      size_t node = pair.first;
+      if (visited.contains(node)) {
+        continue;
+      }
+
+      std::unordered_set<size_t> cluster;
+      std::unordered_set<size_t> stack;
+      stack.insert(node);
+
+      while (!stack.empty()) {
+        size_t current = *stack.begin();
+        stack.erase(stack.begin());
+
+        if (visited.contains(current)) {
+          continue;
+        }
+
+        visited.insert(current);
+        cluster.insert(current);
+
+        for (const auto &neighbor : connections_.at(current)) {
+          stack.insert(neighbor);
+        }
+      }
+
+      clusters.push_back(cluster);
+    }
+
+    return clusters;
   }
 
-  return false;
-}
+  bool is_fully_connected() const {
+    const auto len = connections_.size();
+    std::unordered_set<size_t> visited;
+    visited.reserve(len);
+    std::unordered_set<size_t> queue;
+    queue.insert(0);
+
+    while (!queue.empty()) {
+      size_t current = *queue.begin();
+      queue.erase(queue.begin());
+
+      if (visited.contains(current)) {
+        continue;
+      }
+
+      visited.insert(current);
+      for (const auto &neighbor : connections_.at(current)) {
+        queue.insert(neighbor);
+      }
+    }
+    return visited.size() == len;
+  }
+
+  int64_t get_top_3_cluster_product() const {
+    clusters_t clusters = get_clusters();
+    std::vector<size_t> cluster_sizes;
+
+    for (const auto &cluster : clusters) {
+      cluster_sizes.push_back(cluster.size());
+
+#ifndef NDEBUG
+      std::cout << "cluster " << cluster_sizes.size() << ": " << cluster.size()
+                << "\n";
+#endif
+    }
+
+    std::sort(cluster_sizes.begin(), cluster_sizes.end(),
+              std::greater<size_t>());
+
+    if (cluster_sizes.size() < 3) {
+      return 0;
+    }
+
+    return static_cast<int64_t>(cluster_sizes[0]) *
+           static_cast<int64_t>(cluster_sizes[1]) *
+           static_cast<int64_t>(cluster_sizes[2]);
+  }
+
+  Coordinate get_coordinate(int index) const { return coords_.at(index); }
+
+private:
+  std::vector<Coordinate> coords_{};
+  std::unordered_map<int, std::unordered_set<int>> connections_{};
+  std::vector<std::vector<double>> dist_matrix_{};
+};
 
 int main() {
-  auto is_debug = is_debug_enabled();
-  auto iter_count_str = std::getenv("ITER_COUNT");
-  auto ITER_COUNT = iter_count_str ? std::stoi(iter_count_str) : 10;
-  if (ITER_COUNT <= 0) {
-    ITER_COUNT = 10;
-  }
-
   std::vector<Coordinate> cords;
   cords.reserve(1000);
 
@@ -110,85 +203,46 @@ int main() {
     cords.emplace_back(x, y, z);
   }
 
-  auto len = cords.size();
+  Circuits circuits(cords);
 
-  std::vector<std::vector<double>> dist_matrix(len,
-                                               std::vector<double>(len, 0.0));
+  circuits.connect_shortest_n_times(10);
+  auto p1_10 = circuits.get_top_3_cluster_product();
+  printf("p1 (step=10): %zu\n", p1_10);
 
-  for (size_t i = 0; i < len; ++i) {
-    dist_matrix[i][i] = std::numeric_limits<double>::max();
-    for (size_t j = i + 1; j < len; ++j) {
-      double dist = cords[i].distance(cords[j]);
-      dist_matrix[i][j] = dist;
-      dist_matrix[j][i] = dist;
-    }
+  circuits.connect_shortest_n_times(1000 - 10);
+  if (circuits.is_fully_connected()) {
+    printf("[WARN] Circuits are fully connected (sample data?), reset.\n");
+    circuits.set_coords(cords);
+  } else {
+    auto p1_1000 = circuits.get_top_3_cluster_product();
+    printf("p1 (step=1000): %zu\n", p1_1000);
   }
 
-  if (is_debug) {
-    printf("Distance Matrix:\n");
-    for (size_t i = 0; i < len; ++i) {
-      for (size_t j = 0; j < len; ++j) {
-        printf("%f,", dist_matrix[i][j]);
-      }
-      printf("\n");
-    }
-  }
-
-  clusters_t clusters;
-  constexpr double kMaxDouble = std::numeric_limits<double>::max();
-
-  for (int z = 0; z < ITER_COUNT; z++) {
-    int idx1 = -1, idx2 = -1;
-    double shortest_dist = kMaxDouble;
-
-    for (size_t i = 0; i < cords.size(); i++) {
-      for (size_t j = i + 1; j < cords.size(); j++) {
-        if (dist_matrix[i][j] < shortest_dist) {
-          shortest_dist = dist_matrix[i][j];
-          idx1 = static_cast<int>(i);
-          idx2 = static_cast<int>(j);
-        }
-      }
-    }
-
-    if (idx1 == -1 || idx2 == -1) {
+  std::optional<std::pair<int, int>> result;
+  while (!circuits.is_fully_connected()) {
+    result = circuits.connect_next_shortest();
+    if (!result) {
       break;
     }
-
-    insert_to_clusters(clusters, idx1, idx2);
-
-    dist_matrix[idx1][idx2] = kMaxDouble;
-    dist_matrix[idx2][idx1] = kMaxDouble;
   }
 
-  clusters_t merged_clusters = merge_clusters(clusters);
+  if (!result) {
+    printf("[ERR ] Failed to connect the circuit.\n");
+  } else {
+    auto [idx1, idx2] = *result;
+    auto pt1 = circuits.get_coordinate(idx1);
+    auto pt2 = circuits.get_coordinate(idx2);
 
-  std::vector<size_t> cluster_sizes;
-  cluster_sizes.reserve(merged_clusters.size());
-  for (const auto &cluster : merged_clusters) {
-    cluster_sizes.push_back(cluster.size());
+#ifndef NDEBUG
+    auto pt1_str = pt1.to_string();
+    auto pt2_str = pt2.to_string();
+    printf("Last connect: %s(idx=%d) - %s(idx=%d)\n", pt1_str.c_str(),
+           static_cast<int>(idx1), pt2_str.c_str(), static_cast<int>(idx2));
+#endif
+
+    auto p2 = pt1.x * pt2.x;
+    printf("p2: %d\n", p2);
   }
-  std::sort(cluster_sizes.begin(), cluster_sizes.end(), std::greater<size_t>());
-
-  if (is_debug) {
-    printf("Clusters found: %zu\n", merged_clusters.size());
-    for (size_t i = 0; i < merged_clusters.size(); ++i) {
-      printf("Cluster %zu: ", i);
-      for (const auto &index : merged_clusters[i]) {
-        printf("%d ", index);
-      }
-      printf("\n");
-    }
-
-    printf("Sorted cluster sizes: ");
-    for (auto &&size : cluster_sizes) {
-      std::cout << size << ' ';
-    }
-    std::cout << std::endl;
-  }
-
-  auto p1 = cluster_sizes[0] * cluster_sizes[1] * cluster_sizes[2];
-  printf("p1: %zu\n", p1);
 
   return 0;
 }
