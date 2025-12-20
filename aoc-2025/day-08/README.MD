@@ -1,4 +1,4 @@
-# Day 8: TBD
+# Day 8: Playground
 
 [[^ up]](../../README.asciidoc) [[< prev]](../day-07/README.MD) [[next >]](../day-09/README.MD) <!-- [[solution ✨]](./solve.py) -->
 
