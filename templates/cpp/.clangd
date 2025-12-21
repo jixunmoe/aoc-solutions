@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-Wall, -O2, -std=c++20]
