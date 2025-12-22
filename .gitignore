@@ -5,6 +5,7 @@ target/
 *.exe
 *.dll
 *.out
+*.o
 dump.txt
 dump.csv
 
