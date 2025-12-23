@@ -1,6 +1,6 @@
 # Day 10: Factory
 
-[[^ up]](../../README.asciidoc) [[< prev]](../day-09/README.MD) [[next >]](../day-11/README.MD) <!-- [[solution ✨]](./solve.py) -->
+[[^ up]](../../README.asciidoc) [[< prev]](../day-09/README.MD) [[next >]](../day-11/README.MD) [[solution in cpp ✨]](./solve.cpp)
 
 <!-- article begin -->
 
@@ -8,7 +8,11 @@
 
 Brute force, prioritize lowest button presses (BFS, Breadth-First Search).
 
-Code to be implemented. Added code to parse and display input.
+## Part 2
+
+Attack and conquer (optionally with memoization).
+
+See [Bifurcate your way to victory! by /u/tenthmascot](https://old.reddit.com/r/adventofcode/comments/1pk87hl).
 
 <!-- article end -->
 

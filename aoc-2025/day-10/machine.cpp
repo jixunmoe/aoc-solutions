@@ -3,6 +3,7 @@
 
 #include "machine.h"
 
+#include <algorithm>
 #include <cstring>
 
 enum class PARSE_STATE {
@@ -109,14 +110,14 @@ Machine Machine::from_line(const char *line) {
 std::string Machine::to_string() const {
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < size(); i++) {
+  for (size_t i = 0; i < button_size(); i++) {
     ss << ((target_state_ & (1 << i)) ? '#' : '.');
   }
   ss << "] ";
   for (const auto &btn : buttons_) {
     ss << "(";
     bool add_comma = false;
-    for (size_t i = 0; i < size(); i++) {
+    for (size_t i = 0; i < button_size(); i++) {
       if (btn & (1 << i)) {
         if (add_comma) {
           ss << ",";
@@ -140,4 +141,16 @@ std::string Machine::to_string() const {
     ss << "}";
   }
   return ss.str();
+}
+
+Machine Machine::fit_to_joltage() const {
+  btn_state_t mask = (btn_state_t{1} << joltages_.size()) - 1;
+  auto buttons = buttons_;
+  for (auto &btn : buttons) {
+    btn &= mask;
+  }
+  buttons.erase(std::remove_if(buttons.begin(), buttons.end(),
+                               [](btn_state_t btn) { return btn == 0; }),
+                buttons.end());
+  return Machine(target_state_ & mask, buttons, joltages_);
 }

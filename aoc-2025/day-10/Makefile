@@ -5,6 +5,8 @@ CFLAGS ?= -O2 -DNDEBUG
 clean:
 	rm -f *.o *.exe
 
+%.cpp: machine.h
+
 %.o: %.cpp
 	g++ -c $< -o $@ -lm $(CFLAGS) -Wall -Wextra -Werror -std=c++20
 
