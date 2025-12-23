@@ -2,7 +2,7 @@
 
 int main() {
 
-  std::vector<std::shared_ptr<Machine>> machines;
+  std::vector<Machine> machines;
   {
     char line[256];
     while (fgets(line, sizeof(line) - 1, stdin)) {
@@ -12,7 +12,7 @@ int main() {
 
   // test my parser
   for (size_t i = 0; i < machines.size(); i++) {
-    auto str = machines[i]->to_string();
+    auto str = machines[i].to_string();
     printf("Machine %zu: %s\n", i, str.c_str());
   }
   return 0;

@@ -14,7 +14,7 @@ enum class PARSE_STATE {
   END,
 };
 
-std::shared_ptr<Machine> Machine::from_line(const char *line) {
+Machine Machine::from_line(const char *line) {
   const char *p = line;
   const char *end = p + strlen(line);
 
@@ -103,7 +103,7 @@ std::shared_ptr<Machine> Machine::from_line(const char *line) {
     } // switch
   } // for
 
-  return std::make_shared<Machine>(target_state, buttons, joltages);
+  return {target_state, buttons, joltages};
 }
 
 std::string Machine::to_string() const {

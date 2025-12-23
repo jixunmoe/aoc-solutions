@@ -22,7 +22,7 @@ public:
     return state ^ buttons_[btn_idx];
   }
 
-  static std::shared_ptr<Machine> from_line(const char *line);
+  static Machine from_line(const char *line);
   std::string to_string() const;
 
   operator std::string() const { return to_string(); }
