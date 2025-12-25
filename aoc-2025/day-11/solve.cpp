@@ -40,9 +40,12 @@ size_t solve_nodes(const graph_t &graph, node_t cache_key, cache_t &cache) {
   size_t paths = 0;
   if (auto it_n = graph.find(start_node); it_n != graph.end()) {
     for (const auto &next : it_n->second) {
-      node_t next_cache_key = next | visited_attr;
-      next_cache_key |= next == kNodeAnchor1 ? kMaskVisitedAnchor1 : 0;
-      next_cache_key |= next == kNodeAnchor2 ? kMaskVisitedAnchor2 : 0;
+      node_t next_cache_key = next;
+      if constexpr (PART_NUMBER == 2) {
+        next_cache_key |= visited_attr;
+        next_cache_key |= next == kNodeAnchor1 ? kMaskVisitedAnchor1 : 0;
+        next_cache_key |= next == kNodeAnchor2 ? kMaskVisitedAnchor2 : 0;
+      }
       paths += solve_nodes<PART_NUMBER>(graph, next_cache_key, cache);
     }
   }
