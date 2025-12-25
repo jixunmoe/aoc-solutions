@@ -71,10 +71,10 @@ Note: Copilot was used to speed up coding during the creation of AoC 2025 soluti
 | link:aoc-2025/day-10/README.MD[Day 10 ✨]
 
 | link:aoc-2025/day-04/README.MD[Day 4 ✨]
-| link:aoc-2025/day-11/README.MD[Day 11 🚧]
+| link:aoc-2025/day-11/README.MD[Day 11 ✨]
 
 | link:aoc-2025/day-05/README.MD[Day 5 ✨]
-| link:aoc-2025/day-12/README.MD[Day 12 🚧]
+| link:aoc-2025/day-12/README.MD[Day 12 ✨]
 
 | link:aoc-2025/day-06/README.MD[Day 6 ✨]
 .2+.^|🎄
